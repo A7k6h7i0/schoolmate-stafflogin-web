@@ -52,6 +52,8 @@ export function DashboardPage() {
     retry: 1,
   })
 
+  const kpis = data?.kpis
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -68,14 +70,14 @@ export function DashboardPage() {
       {isError && (
         <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
           <CardContent className="pt-6 text-sm text-amber-800 dark:text-amber-200">
-            Could not load live KPIs: {getErrorMessage(error)}. Showing layout with available data.
+            Could not load dashboard data: {getErrorMessage(error)}.
           </CardContent>
         </Card>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {KPI_CONFIG.map((kpi) => {
-          const raw = data?.[kpi.key]
+          const raw = kpis?.[kpi.key]
           const value = typeof raw === 'number' ? raw : null
           if (!isLoading && value === null) return null
 

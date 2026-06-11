@@ -8,7 +8,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1'
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
   try {
     const payload: Record<string, string> = {
-      password: credentials.password,
+      password: credentials.password.trim(),
     }
 
     if (credentials.email?.trim()) {
@@ -29,12 +29,15 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
 
     return data
   } catch (error) {
+    const message = getErrorMessage(error)
     if (axios.isAxiosError(error) && error.response?.status === 401) {
       throw new Error(
-        'Invalid credentials. Use Email vs Username correctly and verify your password.',
+        message && message !== 'Request failed with status code 401'
+          ? `${message} Check username/email and password, or sign in with an account on this API server.`
+          : 'Invalid credentials. Check username/email and password.',
       )
     }
-    throw new Error(getErrorMessage(error))
+    throw new Error(message)
   }
 }
 

@@ -61,10 +61,11 @@ export function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     clearError()
+    const method = loginMethod
     try {
       await login({
-        password: data.password,
-        ...(data.loginMethod === 'email'
+        password: data.password.trim(),
+        ...(method === 'email'
           ? { email: data.email?.trim() }
           : { username: data.username?.trim() }),
       })
@@ -145,8 +146,10 @@ export function LoginPage() {
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl">Staff sign in</CardTitle>
               <CardDescription>
-                Sign in with <strong>Username</strong> if the account was created with a username
-                (not email).
+                Use the <strong>Email</strong> tab with the staff email (e.g.{' '}
+                <span className="font-mono text-xs">physics.teacher@schoolmate.com</span>). Password
+                is the one set in <strong>HR → Onboard employee</strong> when the account was
+                created.
               </CardDescription>
             </CardHeader>
             <CardContent>
