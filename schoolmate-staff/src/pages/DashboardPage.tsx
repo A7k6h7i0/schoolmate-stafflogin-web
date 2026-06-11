@@ -27,10 +27,12 @@ import { getErrorMessage } from '@/lib/api/client'
 const KPI_CONFIG = [
   { key: 'totalStudents', label: 'Total Students', icon: GraduationCap, format: (v: number) => v.toLocaleString() },
   { key: 'totalTeachers', label: 'Staff Members', icon: Users, format: (v: number) => v.toLocaleString() },
-  { key: 'attendanceRate', label: 'Attendance Rate', icon: CalendarCheck, format: (v: number) => `${v}%` },
-  { key: 'feeCollectionToday', label: 'Fees Today (₹)', icon: CreditCard, format: (v: number) => `₹${v.toLocaleString('en-IN')}` },
+  { key: 'totalClasses', label: 'Total Classes', icon: BookOpen, format: (v: number) => v.toLocaleString() },
+  { key: 'attendanceRate', label: 'Attendance Today', icon: CalendarCheck, format: (v: number) => `${v}%` },
+  { key: 'outstandingFees', label: 'Outstanding Fees (₹)', icon: CreditCard, format: (v: number) => `₹${v.toLocaleString('en-IN')}` },
+  { key: 'activeRoutes', label: 'Transport Routes', icon: Bus, format: (v: number) => v.toLocaleString() },
+  { key: 'totalLibraryBooks', label: 'Library Books', icon: Library, format: (v: number) => v.toLocaleString() },
   { key: 'pendingLeaves', label: 'Pending Leaves', icon: BookOpen, format: (v: number) => v.toLocaleString() },
-  { key: 'activeRoutes', label: 'Active Routes', icon: Bus, format: (v: number) => v.toLocaleString() },
   { key: 'overdueBooks', label: 'Overdue Books', icon: Library, format: (v: number) => v.toLocaleString() },
 ] as const
 
@@ -75,6 +77,7 @@ export function DashboardPage() {
         {KPI_CONFIG.map((kpi) => {
           const raw = data?.[kpi.key]
           const value = typeof raw === 'number' ? raw : null
+          if (!isLoading && value === null) return null
 
           return (
             <Card key={kpi.key} className="overflow-hidden">
@@ -88,9 +91,7 @@ export function DashboardPage() {
                 {isLoading ? (
                   <Skeleton className="h-8 w-24" />
                 ) : (
-                  <p className="text-2xl font-bold">
-                    {value !== null ? kpi.format(value) : '—'}
-                  </p>
+                  <p className="text-2xl font-bold">{kpi.format(value!)}</p>
                 )}
               </CardContent>
             </Card>
