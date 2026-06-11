@@ -26,7 +26,6 @@ export interface User {
 }
 
 export interface LoginCredentials {
-  schoolId: string
   email?: string
   username?: string
   password: string

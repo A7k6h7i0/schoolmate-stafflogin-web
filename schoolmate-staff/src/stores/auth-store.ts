@@ -38,11 +38,13 @@ export const useAuthStore = create<AuthState>()(
             throw new Error('This portal is for staff only. Parent and student accounts cannot sign in here.')
           }
 
+          const schoolId = data.user.schoolId?.trim() || null
+
           set({
             user: data.user,
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
-            schoolId: credentials.schoolId,
+            schoolId,
             isAuthenticated: true,
             isLoading: false,
             error: null,

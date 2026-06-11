@@ -11,16 +11,15 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
       password: credentials.password,
     }
 
-    if (credentials.email) {
-      payload.email = credentials.email
-    } else if (credentials.username) {
-      payload.username = credentials.username
+    if (credentials.email?.trim()) {
+      payload.email = credentials.email.trim()
+    } else if (credentials.username?.trim()) {
+      payload.username = credentials.username.trim()
     }
 
     const { data } = await axios.post<LoginResponse>(`${API_BASE_URL}/auth/login`, payload, {
       headers: {
         'Content-Type': 'application/json',
-        'X-School-ID': credentials.schoolId,
       },
     })
 
@@ -30,6 +29,11 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
 
     return data
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      throw new Error(
+        'Invalid credentials. Use Email vs Username correctly and verify your password.',
+      )
+    }
     throw new Error(getErrorMessage(error))
   }
 }

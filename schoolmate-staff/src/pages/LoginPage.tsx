@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion } from 'framer-motion'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { GraduationCap, Loader2, Lock, Mail, School, User } from 'lucide-react'
+import { GraduationCap, Loader2, Lock, Mail, User } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,7 +13,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 const loginSchema = z
   .object({
-    schoolId: z.string().min(24, 'School ID must be a valid MongoDB ObjectId (24 characters)'),
     loginMethod: z.enum(['email', 'username']),
     email: z.string().optional(),
     username: z.string().optional(),
@@ -53,7 +52,6 @@ export function LoginPage() {
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      schoolId: '',
       loginMethod: 'email',
       email: '',
       username: '',
@@ -65,7 +63,6 @@ export function LoginPage() {
     clearError()
     try {
       await login({
-        schoolId: data.schoolId.trim(),
         password: data.password,
         ...(data.loginMethod === 'email'
           ? { email: data.email?.trim() }
@@ -148,27 +145,12 @@ export function LoginPage() {
             <CardHeader className="space-y-1">
               <CardTitle className="text-2xl">Staff sign in</CardTitle>
               <CardDescription>
-                Enter your school ID and credentials to access the portal.
+                Sign in with <strong>Username</strong> if the account was created with a username
+                (not email).
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="schoolId">School ID</Label>
-                  <div className="relative">
-                    <School className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="schoolId"
-                      placeholder="60d21b4667d0d8992e610c85"
-                      className="pl-10"
-                      {...form.register('schoolId')}
-                    />
-                  </div>
-                  {form.formState.errors.schoolId && (
-                    <p className="text-sm text-destructive">{form.formState.errors.schoolId.message}</p>
-                  )}
-                </div>
-
                 <div className="flex gap-2">
                   <Button
                     type="button"
