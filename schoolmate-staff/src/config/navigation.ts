@@ -30,7 +30,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/dashboard',
     icon: LayoutDashboard,
     module: 'Analytics',
-    roles: ['SCHOOL_ADMIN', 'ACADEMIC_ADMIN', 'TEACHER', 'ACCOUNTANT'],
+    roles: ['SCHOOL_ADMIN'],
   },
   {
     title: 'Students',

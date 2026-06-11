@@ -21,6 +21,7 @@ import {
 } from '@/lib/transport-form'
 import { formatEmployeeName, listEmployees } from '@/lib/api/hr'
 import { listStudents } from '@/lib/api/students'
+import { useIsSchoolAdmin } from '@/hooks/use-is-school-admin'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingTable } from '@/components/shared/LoadingTable'
@@ -41,6 +42,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export function TransportPage() {
+  const isAdmin = useIsSchoolAdmin()
   const queryClient = useQueryClient()
   const [routeOpen, setRouteOpen] = useState(false)
   const [vehicleOpen, setVehicleOpen] = useState(false)
@@ -224,20 +226,22 @@ export function TransportPage() {
         </TabsList>
 
         <TabsContent value="routes" className="space-y-4">
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              onClick={() => {
-                setRouteErrors({})
-                setRouteOpen(true)
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              Add route
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setAllocOpen(true)}>Allocate student</Button>
-            <Button size="sm" variant="outline" onClick={() => setGpsOpen(true)}><MapPin className="h-4 w-4" />Update GPS</Button>
-          </div>
+          {isAdmin && (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => {
+                  setRouteErrors({})
+                  setRouteOpen(true)
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Add route
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setAllocOpen(true)}>Allocate student</Button>
+              <Button size="sm" variant="outline" onClick={() => setGpsOpen(true)}><MapPin className="h-4 w-4" />Update GPS</Button>
+            </div>
+          )}
           {routesLoading ? <LoadingTable /> : routes.length === 0 ? <EmptyState /> : (
             <div className="grid gap-4 md:grid-cols-2">
               {routes.map((r) => (
@@ -256,17 +260,19 @@ export function TransportPage() {
         </TabsContent>
 
         <TabsContent value="vehicles">
-          <Button
-            size="sm"
-            className="mb-4"
-            onClick={() => {
-              setVehicleErrors({})
-              setVehicleOpen(true)
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Add vehicle
-          </Button>
+          {isAdmin && (
+            <Button
+              size="sm"
+              className="mb-4"
+              onClick={() => {
+                setVehicleErrors({})
+                setVehicleOpen(true)
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Add vehicle
+            </Button>
+          )}
           {vehiclesLoading ? <LoadingTable /> : vehicles.length === 0 ? <EmptyState /> : (
             <div className="overflow-hidden rounded-xl border">
               <table className="w-full text-sm">
@@ -286,7 +292,9 @@ export function TransportPage() {
         </TabsContent>
 
         <TabsContent value="drivers">
-          <Button size="sm" className="mb-4" onClick={() => setDriverOpen(true)}><Plus className="h-4 w-4" />Assign driver</Button>
+          {isAdmin && (
+            <Button size="sm" className="mb-4" onClick={() => setDriverOpen(true)}><Plus className="h-4 w-4" />Assign driver</Button>
+          )}
           {driversLoading ? <LoadingTable /> : drivers.length === 0 ? <EmptyState /> : (
             <div className="overflow-hidden rounded-xl border">
               <table className="w-full text-sm">

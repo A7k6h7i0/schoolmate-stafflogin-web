@@ -16,6 +16,7 @@ import { getErrorMessage } from '@/lib/api/client'
 import { mergeSectionIntoClasses, upsertClass } from '@/lib/api/normalize'
 import { CLASSES_QUERY_KEY, useClasses } from '@/hooks/use-classes'
 import type { ClassLevel } from '@/types/entities'
+import { useIsSchoolAdmin } from '@/hooks/use-is-school-admin'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingTable } from '@/components/shared/LoadingTable'
@@ -28,6 +29,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export function AcademicsPage() {
+  const isAdmin = useIsSchoolAdmin()
   const queryClient = useQueryClient()
   const [classDialog, setClassDialog] = useState(false)
   const [sectionDialog, setSectionDialog] = useState(false)
@@ -132,10 +134,12 @@ export function AcademicsPage() {
         </TabsList>
 
         <TabsContent value="classes" className="space-y-4">
-          <div className="flex gap-2">
-            <Button size="sm" onClick={() => setClassDialog(true)}><Plus className="h-4 w-4" />Add class</Button>
-            <Button size="sm" variant="outline" onClick={() => setSectionDialog(true)}><Plus className="h-4 w-4" />Add section</Button>
-          </div>
+          {isAdmin && (
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => setClassDialog(true)}><Plus className="h-4 w-4" />Add class</Button>
+              <Button size="sm" variant="outline" onClick={() => setSectionDialog(true)}><Plus className="h-4 w-4" />Add section</Button>
+            </div>
+          )}
           {classesError && (
             <p className="mb-4 text-sm text-destructive">
               Failed to load classes: {getErrorMessage(classesErrorObj)}
@@ -161,7 +165,9 @@ export function AcademicsPage() {
         </TabsContent>
 
         <TabsContent value="subjects">
-          <Button size="sm" className="mb-4" onClick={() => setSubjectDialog(true)}><Plus className="h-4 w-4" />Add subject</Button>
+          {isAdmin && (
+            <Button size="sm" className="mb-4" onClick={() => setSubjectDialog(true)}><Plus className="h-4 w-4" />Add subject</Button>
+          )}
           {subjectsLoading ? <LoadingTable /> : subjects.length === 0 ? (
             <EmptyState />
           ) : (
@@ -182,7 +188,9 @@ export function AcademicsPage() {
         </TabsContent>
 
         <TabsContent value="homework">
-          <Button size="sm" className="mb-4" onClick={() => setHomeworkDialog(true)}><Plus className="h-4 w-4" />Publish homework</Button>
+          {isAdmin && (
+            <Button size="sm" className="mb-4" onClick={() => setHomeworkDialog(true)}><Plus className="h-4 w-4" />Publish homework</Button>
+          )}
           {homeworkLoading ? <LoadingTable /> : homework.length === 0 ? <EmptyState /> : (
             <div className="space-y-3">
               {homework.map((h) => (
@@ -197,7 +205,9 @@ export function AcademicsPage() {
         </TabsContent>
 
         <TabsContent value="exams">
-          <Button size="sm" className="mb-4" onClick={() => setExamDialog(true)}><Plus className="h-4 w-4" />Create exam</Button>
+          {isAdmin && (
+            <Button size="sm" className="mb-4" onClick={() => setExamDialog(true)}><Plus className="h-4 w-4" />Create exam</Button>
+          )}
           {examsLoading ? <LoadingTable /> : exams.length === 0 ? <EmptyState /> : (
             <div className="overflow-hidden rounded-xl border">
               <table className="w-full text-sm">

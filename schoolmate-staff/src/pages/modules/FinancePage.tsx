@@ -17,6 +17,7 @@ import { createFeeStructureSchema, currentAcademicYear } from '@/lib/finance-for
 import { useClasses } from '@/hooks/use-classes'
 import { FormErrorSummary } from '@/components/shared/FormErrorSummary'
 import { FormFieldError } from '@/components/shared/FormFieldError'
+import { useIsSchoolAdmin } from '@/hooks/use-is-school-admin'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingTable } from '@/components/shared/LoadingTable'
@@ -37,6 +38,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 
 export function FinancePage() {
+  const isAdmin = useIsSchoolAdmin()
   const queryClient = useQueryClient()
   const [structureOpen, setStructureOpen] = useState(false)
   const [paymentOpen, setPaymentOpen] = useState(false)
@@ -136,23 +138,25 @@ export function FinancePage() {
         title="Finance & Fees"
         description="Fee structures, cash collection, invoices, and daily ledger (INR)."
         action={
-          <div className="flex flex-wrap items-center gap-2">
-            <Input
-              value={academicYear}
-              onChange={(e) => setAcademicYear(e.target.value)}
-              placeholder="2025-2026"
-              className="w-[130px]"
-              aria-label="Academic year"
-            />
-            <Button variant="outline" onClick={() => generateLedger.mutate()} disabled={generateLedger.isPending}>
-              <RefreshCw className="h-4 w-4" />
-              Generate yearly ledger
-            </Button>
-            <Button onClick={() => setPaymentOpen(true)}>
-              <IndianRupee className="h-4 w-4" />
-              Collect payment
-            </Button>
-          </div>
+          isAdmin ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <Input
+                value={academicYear}
+                onChange={(e) => setAcademicYear(e.target.value)}
+                placeholder="2025-2026"
+                className="w-[130px]"
+                aria-label="Academic year"
+              />
+              <Button variant="outline" onClick={() => generateLedger.mutate()} disabled={generateLedger.isPending}>
+                <RefreshCw className="h-4 w-4" />
+                Generate yearly ledger
+              </Button>
+              <Button onClick={() => setPaymentOpen(true)}>
+                <IndianRupee className="h-4 w-4" />
+                Collect payment
+              </Button>
+            </div>
+          ) : undefined
         }
       />
 
@@ -164,19 +168,21 @@ export function FinancePage() {
         </TabsList>
 
         <TabsContent value="structures">
-          <div className="mb-4">
-            <Button
-              size="sm"
-              onClick={() => {
-                setStructureErrors({})
-                setStructureForm((prev) => ({ ...prev, academicYear: academicYear }))
-                setStructureOpen(true)
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              Add structure
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="mb-4">
+              <Button
+                size="sm"
+                onClick={() => {
+                  setStructureErrors({})
+                  setStructureForm((prev) => ({ ...prev, academicYear: academicYear }))
+                  setStructureOpen(true)
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Add structure
+              </Button>
+            </div>
+          )}
           {structuresLoading ? (
             <LoadingTable />
           ) : structures.length === 0 ? (

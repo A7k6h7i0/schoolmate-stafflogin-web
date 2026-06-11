@@ -13,6 +13,7 @@ import {
 } from '@/lib/api/library'
 import { getErrorMessage } from '@/lib/api/client'
 import { createBookSchema, suggestBarcode } from '@/lib/library-form'
+import { useIsSchoolAdmin } from '@/hooks/use-is-school-admin'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingTable } from '@/components/shared/LoadingTable'
@@ -33,6 +34,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 
 export function LibraryPage() {
+  const isAdmin = useIsSchoolAdmin()
   const queryClient = useQueryClient()
   const [bookOpen, setBookOpen] = useState(false)
   const [issueOpen, setIssueOpen] = useState(false)
@@ -137,17 +139,19 @@ export function LibraryPage() {
         </TabsList>
 
         <TabsContent value="catalog">
-          <Button
-            size="sm"
-            className="mb-4"
-            onClick={() => {
-              setBookErrors({})
-              setBookOpen(true)
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Add book
-          </Button>
+          {isAdmin && (
+            <Button
+              size="sm"
+              className="mb-4"
+              onClick={() => {
+                setBookErrors({})
+                setBookOpen(true)
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Add book
+            </Button>
+          )}
           {booksLoading ? <LoadingTable /> : books.length === 0 ? <EmptyState /> : (
             <div className="overflow-hidden rounded-xl border">
               <table className="w-full text-sm">
@@ -159,9 +163,11 @@ export function LibraryPage() {
                       <td className="px-4 py-3">{b.author ?? '—'}</td>
                       <td className="px-4 py-3">{b.availableCopies ?? b.totalCopies ?? '—'}</td>
                       <td className="px-4 py-3 text-right">
-                        <Button size="sm" variant="outline" onClick={() => { setIssueForm({ bookId: b.id, studentId: '' }); setIssueOpen(true) }}>
-                          <BookOpen className="h-3 w-3" />Issue
-                        </Button>
+                        {isAdmin && (
+                          <Button size="sm" variant="outline" onClick={() => { setIssueForm({ bookId: b.id, studentId: '' }); setIssueOpen(true) }}>
+                            <BookOpen className="h-3 w-3" />Issue
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -172,7 +178,9 @@ export function LibraryPage() {
         </TabsContent>
 
         <TabsContent value="issues">
-          <Button size="sm" className="mb-4" variant="outline" onClick={() => setReturnOpen(true)}><RotateCcw className="h-4 w-4" />Return book</Button>
+          {isAdmin && (
+            <Button size="sm" className="mb-4" variant="outline" onClick={() => setReturnOpen(true)}><RotateCcw className="h-4 w-4" />Return book</Button>
+          )}
           {issuesLoading ? <LoadingTable /> : issues.length === 0 ? <EmptyState /> : (
             <div className="overflow-hidden rounded-xl border">
               <table className="w-full text-sm">
@@ -203,7 +211,9 @@ export function LibraryPage() {
                       <td className="px-4 py-3">{i.bookTitle ?? i.bookId}</td>
                       <td className="px-4 py-3">{i.studentName ?? i.studentId}</td>
                       <td className="px-4 py-3 text-right">
-                        <Button size="sm" onClick={() => fineMut.mutate(i.id)}>Pay fine</Button>
+                        {isAdmin && (
+                          <Button size="sm" onClick={() => fineMut.mutate(i.id)}>Pay fine</Button>
+                        )}
                       </td>
                     </tr>
                   ))}

@@ -16,6 +16,7 @@ import { resolveClassSectionIds } from '@/lib/api/classes'
 import { getApiErrorDetails } from '@/lib/api/error-details'
 import { FormErrorSummary } from '@/components/shared/FormErrorSummary'
 import { FormFieldError } from '@/components/shared/FormFieldError'
+import { useIsSchoolAdmin } from '@/hooks/use-is-school-admin'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { Pagination } from '@/components/shared/Pagination'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -38,6 +39,7 @@ import { buildCreateStudentPayload, createStudentSchema } from '@/lib/students-f
 import type { Student } from '@/types/entities'
 
 export function StudentsPage() {
+  const isAdmin = useIsSchoolAdmin()
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
   const [classFilter, setClassFilter] = useState('')
@@ -261,10 +263,12 @@ export function StudentsPage() {
         title="Students"
         description="Manage student roster, profiles, and parent contacts."
         action={
-          <Button onClick={openCreate}>
-            <Plus className="h-4 w-4" />
-            Add student
-          </Button>
+          isAdmin ? (
+            <Button onClick={openCreate}>
+              <Plus className="h-4 w-4" />
+              Add student
+            </Button>
+          ) : undefined
         }
       />
 
@@ -321,18 +325,22 @@ export function StudentsPage() {
                       <Button variant="ghost" size="icon" onClick={() => handleIdCard(student.id)}>
                         <IdCard className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(student)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          if (confirm('Remove this student?')) deleteMutation.mutate(student.id)
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      {isAdmin && (
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(student)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {isAdmin && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            if (confirm('Remove this student?')) deleteMutation.mutate(student.id)
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>

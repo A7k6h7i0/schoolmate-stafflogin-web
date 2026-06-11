@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/communication'
 import { getErrorMessage } from '@/lib/api/client'
 import { createAnnouncementSchema } from '@/lib/communication-form'
+import { useIsSchoolAdmin } from '@/hooks/use-is-school-admin'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingTable } from '@/components/shared/LoadingTable'
@@ -31,6 +32,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export function CommunicationPage() {
+  const isAdmin = useIsSchoolAdmin()
   const queryClient = useQueryClient()
   const [annOpen, setAnnOpen] = useState(false)
   const [meetOpen, setMeetOpen] = useState(false)
@@ -102,17 +104,19 @@ export function CommunicationPage() {
         </TabsList>
 
         <TabsContent value="announcements">
-          <Button
-            size="sm"
-            className="mb-4"
-            onClick={() => {
-              setAnnErrors({})
-              setAnnOpen(true)
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Post announcement
-          </Button>
+          {isAdmin && (
+            <Button
+              size="sm"
+              className="mb-4"
+              onClick={() => {
+                setAnnErrors({})
+                setAnnOpen(true)
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Post announcement
+            </Button>
+          )}
           {annLoading ? (
             <LoadingTable />
           ) : announcements.length === 0 ? (
@@ -132,10 +136,12 @@ export function CommunicationPage() {
         </TabsContent>
 
         <TabsContent value="meetings">
-          <Button size="sm" className="mb-4" onClick={() => setMeetOpen(true)}>
-            <Plus className="h-4 w-4" />
-            Schedule meeting
-          </Button>
+          {isAdmin && (
+            <Button size="sm" className="mb-4" onClick={() => setMeetOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Schedule meeting
+            </Button>
+          )}
           {meetLoading ? (
             <LoadingTable />
           ) : meetings.length === 0 ? (

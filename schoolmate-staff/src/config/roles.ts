@@ -12,3 +12,7 @@ export const ROLE_LABELS: Record<StaffRole, string> = {
 export function isStaffRole(role: string): role is StaffRole {
   return role in ROLE_LABELS
 }
+
+export function isSchoolAdmin(role: string | undefined | null): boolean {
+  return role === 'SCHOOL_ADMIN'
+}

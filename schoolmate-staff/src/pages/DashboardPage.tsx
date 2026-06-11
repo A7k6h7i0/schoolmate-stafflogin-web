@@ -19,6 +19,10 @@ import {
   Users,
 } from 'lucide-react'
 import { fetchDashboardKpis } from '@/lib/api/analytics'
+import { getNavItemsForRole } from '@/config/navigation'
+import { useAuthStore } from '@/stores/auth-store'
+import { isSchoolAdmin, isStaffRole } from '@/config/roles'
+import type { StaffRole } from '@/types/auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
@@ -45,14 +49,72 @@ const SAMPLE_CHART = [
   { name: 'Sat', attendance: 78 },
 ]
 
+const QUICK_ACTION_LABELS: Record<string, string> = {
+  '/students': 'View students',
+  '/attendance': 'Record attendance',
+  '/academics': 'Open academics',
+  '/sports': 'Sports & activities',
+  '/communication': 'Communication',
+  '/finance': 'Finance & fees',
+  '/library': 'Library',
+  '/analytics': 'View analytics',
+}
+
 export function DashboardPage() {
+  const user = useAuthStore((state) => state.user)
+  const isAdmin = isSchoolAdmin(user?.role)
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['dashboard-kpis'],
     queryFn: fetchDashboardKpis,
     retry: 1,
+    enabled: isAdmin,
   })
 
   const kpis = data?.kpis
+  const quickActions = user && isStaffRole(user.role)
+    ? getNavItemsForRole(user.role as StaffRole)
+        .filter((item) => item.href !== '/dashboard' && item.href !== '/settings')
+        .map((item) => ({
+          label: QUICK_ACTION_LABELS[item.href] ?? item.title,
+          href: item.href,
+        }))
+    : []
+
+  if (!isAdmin) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Welcome{user?.firstName ? `, ${user.firstName}` : ''}
+          </h2>
+          <p className="text-muted-foreground">
+            Use the sidebar or quick actions below to open your modules.
+          </p>
+        </div>
+
+        {quickActions.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>Modules available for your role</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-2">
+              {quickActions.map((action) => (
+                <a
+                  key={action.href}
+                  href={action.href}
+                  className="rounded-lg border bg-muted/40 px-4 py-3 text-sm font-medium transition-colors hover:bg-accent"
+                >
+                  {action.label}
+                </a>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -131,7 +193,7 @@ export function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common staff workflows</CardDescription>
+            <CardDescription>Common admin workflows</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
             {[

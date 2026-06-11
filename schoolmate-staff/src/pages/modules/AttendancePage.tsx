@@ -11,6 +11,7 @@ import {
 import { listStudents } from '@/lib/api/students'
 import { useClasses } from '@/hooks/use-classes'
 import { getErrorMessage } from '@/lib/api/client'
+import { useIsSchoolAdmin } from '@/hooks/use-is-school-admin'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingTable } from '@/components/shared/LoadingTable'
@@ -24,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export function AttendancePage() {
+  const isAdmin = useIsSchoolAdmin()
   const queryClient = useQueryClient()
   const [classId, setClassId] = useState('')
   const [sectionId, setSectionId] = useState('')
@@ -211,7 +213,7 @@ export function AttendancePage() {
                       <td className="px-4 py-3">{l.startDate} → {l.endDate}</td>
                       <td className="px-4 py-3"><Badge>{l.status ?? 'PENDING'}</Badge></td>
                       <td className="px-4 py-3 text-right">
-                        {l.status === 'PENDING' && (
+                        {isAdmin && l.status === 'PENDING' && (
                           <div className="flex justify-end gap-2">
                             <Button size="sm" onClick={() => approveLeave.mutate({ id: l.id, status: 'APPROVED' })}>Approve</Button>
                             <Button size="sm" variant="outline" onClick={() => approveLeave.mutate({ id: l.id, status: 'REJECTED' })}>Reject</Button>

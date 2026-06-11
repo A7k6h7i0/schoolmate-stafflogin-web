@@ -7,6 +7,7 @@ import { formatEmployeeName, listEmployees } from '@/lib/api/hr'
 import { getErrorMessage } from '@/lib/api/client'
 import { FormErrorSummary } from '@/components/shared/FormErrorSummary'
 import { FormFieldError } from '@/components/shared/FormFieldError'
+import { useIsSchoolAdmin } from '@/hooks/use-is-school-admin'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingTable } from '@/components/shared/LoadingTable'
@@ -26,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { buildCreateSportPayload, createSportSchema } from '@/lib/sports-form'
 
 export function SportsPage() {
+  const isAdmin = useIsSchoolAdmin()
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [assignOpen, setAssignOpen] = useState(false)
@@ -95,15 +97,17 @@ export function SportsPage() {
         title="Sports & Activities"
         description="Manage sports catalog and student assignments."
         action={
-          <Button
-            onClick={() => {
-              setFormErrors({})
-              setOpen(true)
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            Add sport
-          </Button>
+          isAdmin ? (
+            <Button
+              onClick={() => {
+                setFormErrors({})
+                setOpen(true)
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Add sport
+            </Button>
+          ) : undefined
         }
       />
       {isLoading ? (
@@ -116,31 +120,35 @@ export function SportsPage() {
             <div key={s.id} className="rounded-xl border p-4">
               <div className="flex items-start justify-between">
                 <h3 className="font-semibold">{s.name}</h3>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    if (confirm('Delete this sport?')) deleteMut.mutate(s.id)
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      if (confirm('Delete this sport?')) deleteMut.mutate(s.id)
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                )}
               </div>
               <p className="mt-1 text-sm text-muted-foreground">{s.description}</p>
               {s.coachName && (
                 <p className="mt-1 text-xs text-muted-foreground">Coach: {s.coachName}</p>
               )}
-              <Button
-                size="sm"
-                className="mt-3"
-                variant="outline"
-                onClick={() => {
-                  setSelectedSportId(s.id)
-                  setAssignOpen(true)
-                }}
-              >
-                Assign student
-              </Button>
+              {isAdmin && (
+                <Button
+                  size="sm"
+                  className="mt-3"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedSportId(s.id)
+                    setAssignOpen(true)
+                  }}
+                >
+                  Assign student
+                </Button>
+              )}
             </div>
           ))}
         </div>
